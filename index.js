@@ -3,16 +3,14 @@
 const fs = require('fs');
 
 
-// ------------------------------
-// BigInt helpers (exact rationals)
-// ------------------------------
+
 function absBigInt(a) { return a < 0n ? -a : a; }
 function gcdBigInt(a, b) {
 a = absBigInt(a); b = absBigInt(b);
 while (b !== 0n) { const t = a % b; a = b; b = t; }
 return a;
 }
-class Frac { // Rational number: num/den, both BigInt, den > 0
+class Frac { 
 constructor(num, den = 1n) {
 if (den === 0n) throw new Error('Zero denominator');
 if (den < 0n) { num = -num; den = -den; }
@@ -39,7 +37,6 @@ val = val * maxIdx + d;
 return val;
 }
 function lagrangeEvalAt(points, X) {
-// points: [{x: BigInt, y: BigInt}], X: BigInt
 let total = new Frac(0n, 1n);
 for (let i = 0; i < points.length; i++) {
 const xi = points[i].x, yi = points[i].y;
@@ -75,9 +72,9 @@ yield snapshot();
 }
 }
 function solve(data) {
-const n = BigInt(data.keys.n); // not strictly needed as BigInt, but OK
+const n = BigInt(data.keys.n); 
 const k = Number(data.keys.k);
-// Build points (x, y) with huge y
+
 const points = Object.entries(data)
 .filter(([key]) => key !== 'keys')
 .map(([key, obj]) => ({
@@ -90,9 +87,9 @@ y: parseInBase(String(obj.value), Number(obj.base))
 if (points.length !== Number(n)) throw new Error('n does not match number of shares');
 
 
-let best = null; // {subset, secretFrac, okFlags, count}
+let best = null; 
 for (const subset of combinations(points, k)) {
-const secret = lagrangeEvalAt(subset, 0n); // f(0)
+const secret = lagrangeEvalAt(subset, 0n); 
 let count = 0;
 const okFlags = [];
 for (const p of points) {
@@ -111,7 +108,7 @@ if (!best.okFlags[i]) wrong.push(points[i].x.toString());
 }
 
 
-// Secret as integer if possible
+
 let secretOut;
 if (best.secretFrac.den === 1n) secretOut = best.secretFrac.num.toString();
 else secretOut = `${best.secretFrac.num.toString()}/${best.secretFrac.den.toString()}`;
